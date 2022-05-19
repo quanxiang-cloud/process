@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "../pb";
+
+// The node event definition.
+service NodeEvent {
+    rpc Event (NodeEventReq) returns (NodeEventResp) {}
+}
+
+// The request message
+message NodeEventReq {
+    string eventType = 1; // nodeInitBeginEvent,nodeInitEndEvent,complete
+    NodeEventReqData data = 2;
+}
+
+message NodeEventReqData {
+    string processID = 1;
+    string processInstanceID = 2;
+    string executionID = 3;
+    string nodeDefKey = 4;
+    string nodeInstanceID = 5;
+
+    repeated string taskID = 6; // 节点初始化结束事件才返回：或签一个task，会签多个taskID
+}
+
+// The response message
+message NodeEventResp {
+    enum StatusCode {
+        SUCCESS = 0;
+        FAILURE = -1;
+    }
+
+    StatusCode code = 1;
+    string msg = 2;
+    NodeEventRespData data = 3;
+}
+
+message NodeEventRespData {
+    repeated string assignee = 1; // 节点初始化开始事件才关注：节点处理人
+    string executeType = 2; // 节点初始化结束事件才关注，执行类型：pauseExecution，endExecution，endProcess
+    string comments = 3;
+}
+
+
+

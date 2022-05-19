@@ -1,0 +1,40 @@
+{
+  "id": "1",
+  "name": "请假流程",
+  "nodes": [{
+    "id": "Start1",
+    "name": "开始",
+    "type": "Start",
+    "desc": "",
+    "nextNodes": [{
+      "id": "UserTask1",
+      "condition": ""
+    }]
+  }, {
+    "id": "UserTask1",
+    "name": "部门经理审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["1", "2"],
+    "nextNodes": [{
+      "id": "UserTask2",
+      "condition": ""
+    }]
+  }, {
+    "id": "UserTask2",
+    "name": "总经理审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["3"],
+    "nextNodes": [{
+      "id": "End1",
+      "condition": ""
+    }]
+  }, {
+    "id": "End1",
+    "name": "结束",
+    "type": "End",
+    "desc": "",
+    "nextNodes": []
+  }]
+}

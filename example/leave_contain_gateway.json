@@ -1,0 +1,83 @@
+{
+  "id": "3",
+  "name": "请假流程-含分支",
+  "nodes": [{
+    "id": "Start1",
+    "name": "开始",
+    "type": "Start",
+    "desc": "",
+    "nextNodes": [{
+      "id": "UserTask1",
+      "condition": ""
+    }]
+  }, {
+    "id": "UserTask1",
+    "name": "部门经理审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["1", "2"],
+    "nextNodes": [{
+      "id": "Gateway1",
+      "condition": ""
+    }]
+  }, {
+    "id": "Gateway1",
+    "name": "分流网关",
+    "type": "ParallelGateway",
+    "desc": "",
+    "userIds": ["1", "2"],
+    "nextNodes": [{
+      "id": "UserTask2",
+      "condition": ""
+    },{
+      "id": "UserTask3",
+      "condition": ""
+    }]
+  }, {
+    "id": "UserTask2",
+    "name": "总经理审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["3"],
+    "nextNodes": [{
+      "id": "Gateway2",
+      "condition": "days > 10"
+    }]
+  }, {
+    "id": "UserTask3",
+    "name": "总经理助理审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["4"],
+    "nextNodes": [{
+      "id": "Gateway2",
+      "condition": "days <= 10"
+    }]
+  },{
+    "id": "Gateway2",
+    "name": "合流网关",
+    "type": "InclusiveGateway",
+    "desc": "",
+    "userIds": ["1", "2"],
+    "nextNodes": [{
+      "id": "UserTask4",
+      "condition": ""
+    }]
+  },{
+    "id": "UserTask4",
+    "name": "董事长审批",
+    "type": "User",
+    "desc": "",
+    "userIds": ["5"],
+    "nextNodes": [{
+      "id": "End1",
+      "condition": ""
+    }]
+  }, {
+    "id": "End1",
+    "name": "结束",
+    "type": "End",
+    "desc": "",
+    "nextNodes": []
+  }]
+}
