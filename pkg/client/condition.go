@@ -2,10 +2,10 @@ package client
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/misc/client"
-	"git.internal.yunify.com/qxp/misc/error2"
-	"git.internal.yunify.com/qxp/process/pkg/code"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/code"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/misc/client"
+	"github.com/quanxiang-cloud/process/pkg/misc/error2"
 	"net/http"
 	"strings"
 )

@@ -3,14 +3,14 @@ package process
 import (
 	"context"
 	"encoding/json"
-	"git.internal.yunify.com/qxp/misc/id2"
-	"git.internal.yunify.com/qxp/misc/logger"
-	"git.internal.yunify.com/qxp/misc/time2"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	"git.internal.yunify.com/qxp/process/internal/models/mysql"
-	listener "git.internal.yunify.com/qxp/process/internal/server/events"
-	"git.internal.yunify.com/qxp/process/internal/server/options"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/internal/models/mysql"
+	listener "github.com/quanxiang-cloud/process/internal/server/events"
+	"github.com/quanxiang-cloud/process/internal/server/options"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/misc/id2"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/time2"
 	"gorm.io/gorm"
 )
 

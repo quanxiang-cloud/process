@@ -1,13 +1,13 @@
 package config
 
 import (
-	"git.internal.yunify.com/qxp/misc/client"
-	"git.internal.yunify.com/qxp/misc/mysql2"
-	"git.internal.yunify.com/qxp/misc/redis2"
+	"github.com/quanxiang-cloud/process/pkg/misc/client"
+	"github.com/quanxiang-cloud/process/pkg/misc/mysql2"
+	"github.com/quanxiang-cloud/process/pkg/misc/redis2"
 	"io/ioutil"
 	"time"
 
-	"git.internal.yunify.com/qxp/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
 	"gopkg.in/yaml.v2"
 )
 

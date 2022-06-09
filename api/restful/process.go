@@ -1,14 +1,14 @@
 package restful
 
 import (
-	"git.internal.yunify.com/qxp/misc/logger"
-	"git.internal.yunify.com/qxp/misc/resp"
-	"git.internal.yunify.com/qxp/process/internal/dispatcher"
-	"git.internal.yunify.com/qxp/process/internal/process"
-	listener "git.internal.yunify.com/qxp/process/internal/server/events"
-	"git.internal.yunify.com/qxp/process/internal/server/options"
-	"git.internal.yunify.com/qxp/process/pkg/config"
 	"github.com/gin-gonic/gin"
+	"github.com/quanxiang-cloud/process/internal/dispatcher"
+	"github.com/quanxiang-cloud/process/internal/process"
+	listener "github.com/quanxiang-cloud/process/internal/server/events"
+	"github.com/quanxiang-cloud/process/internal/server/options"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/resp"
 	"gorm.io/gorm"
 	"net/http"
 )

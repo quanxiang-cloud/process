@@ -2,9 +2,9 @@ package component
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/process/internal"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	"git.internal.yunify.com/qxp/process/rpc/pb"
+	"github.com/quanxiang-cloud/process/internal"
+	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 

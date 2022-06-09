@@ -2,9 +2,9 @@ package process
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	"git.internal.yunify.com/qxp/process/internal/models/mysql"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/internal/models/mysql"
+	"github.com/quanxiang-cloud/process/pkg/config"
 	"gorm.io/gorm"
 )
 

@@ -1,11 +1,11 @@
 package restful
 
 import (
-	"git.internal.yunify.com/qxp/misc/logger"
-	"git.internal.yunify.com/qxp/misc/mysql2"
-	"git.internal.yunify.com/qxp/process/internal/server/events"
-	"git.internal.yunify.com/qxp/process/internal/server/options"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/internal/server/events"
+	"github.com/quanxiang-cloud/process/internal/server/options"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/mysql2"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,7 +2,7 @@ package component
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/process/rpc/pb"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 

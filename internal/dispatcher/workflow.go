@@ -2,9 +2,9 @@ package dispatcher
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/process/internal/process"
-	"git.internal.yunify.com/qxp/process/internal/server/options"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/internal/process"
+	"github.com/quanxiang-cloud/process/internal/server/options"
+	"github.com/quanxiang-cloud/process/pkg/config"
 )
 
 // Flow flow

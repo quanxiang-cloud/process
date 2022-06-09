@@ -1,7 +1,7 @@
 package options
 
 import (
-	listener "git.internal.yunify.com/qxp/process/internal/server/events"
+	listener "github.com/quanxiang-cloud/process/internal/server/events"
 	"gorm.io/gorm"
 )
 

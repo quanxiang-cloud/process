@@ -6,16 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"git.internal.yunify.com/qxp/process/api/restful"
-	"git.internal.yunify.com/qxp/process/pkg/config"
+	"github.com/quanxiang-cloud/process/api/restful"
+	"github.com/quanxiang-cloud/process/pkg/config"
 
-	"git.internal.yunify.com/qxp/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
 )
 
 var (
 	//configPath = flag.String("config", "../configs/config.yml", "-config 配置文件地址")
-	configPath = flag.String("config", "/Users/huangyingjun/GolandProjects/process/configs/config.yml", "-config 配置文件地址")
-
+	configPath = flag.String("config", "configs/config.yml", "-config 配置文件地址")
 )
 
 func main() {

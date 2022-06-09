@@ -2,12 +2,12 @@ package component
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/misc/time2"
-	"git.internal.yunify.com/qxp/process/internal"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	"git.internal.yunify.com/qxp/process/pkg"
-	"git.internal.yunify.com/qxp/process/pkg/client"
-	"git.internal.yunify.com/qxp/process/rpc/pb"
+	"github.com/quanxiang-cloud/process/internal"
+	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/pkg"
+	"github.com/quanxiang-cloud/process/pkg/client"
+	"github.com/quanxiang-cloud/process/pkg/misc/time2"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
 )

@@ -2,9 +2,9 @@ package mysql
 
 import (
 	"fmt"
-	"git.internal.yunify.com/qxp/process/internal"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	page2 "git.internal.yunify.com/qxp/process/pkg/page"
+	"github.com/quanxiang-cloud/process/internal"
+	"github.com/quanxiang-cloud/process/internal/models"
+	page2 "github.com/quanxiang-cloud/process/pkg/page"
 	"gorm.io/gorm"
 )
 

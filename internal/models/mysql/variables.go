@@ -2,9 +2,9 @@ package mysql
 
 import (
 	"encoding/json"
-	"git.internal.yunify.com/qxp/misc/time2"
-	"git.internal.yunify.com/qxp/process/internal/models"
-	"git.internal.yunify.com/qxp/process/pkg"
+	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/pkg"
+	"github.com/quanxiang-cloud/process/pkg/misc/time2"
 	"gorm.io/gorm"
 )
 

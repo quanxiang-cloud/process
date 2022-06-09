@@ -3,9 +3,9 @@ package events
 import (
 	"context"
 	"errors"
-	"git.internal.yunify.com/qxp/process/pkg/config"
-	rpc2 "git.internal.yunify.com/qxp/process/rpc"
-	"git.internal.yunify.com/qxp/process/rpc/pb"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	rpc2 "github.com/quanxiang-cloud/process/rpc"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 )
 
 const (

@@ -2,9 +2,9 @@ package events
 
 import (
 	"context"
-	"git.internal.yunify.com/qxp/misc/logger"
-	"git.internal.yunify.com/qxp/process/pkg/config"
-	"git.internal.yunify.com/qxp/process/rpc/pb"
+	"github.com/quanxiang-cloud/process/pkg/config"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"math/rand"
 	"time"
 )
