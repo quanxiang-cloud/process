@@ -3,7 +3,6 @@ package component
 import (
 	"context"
 	"github.com/quanxiang-cloud/process/internal/models"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +13,7 @@ type InclusiveGatewayNode struct {
 }
 
 // Init init node
-func (inc *InclusiveGatewayNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (inc *InclusiveGatewayNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	// 设置进入合流网关的分支
 	if err := inc.ExecutionRepo.SetActive(tx, req.Execution.ID, 0); err != nil {
 		return err
@@ -71,7 +70,7 @@ func (inc *InclusiveGatewayNode) Complete(ctx context.Context, tx *gorm.DB, req 
 		Node:      req.Node,
 		UserID:    req.UserID,
 	}
-	if _, err := inc.InitNextNodes(ctx, tx, initReq); err != nil {
+	if err := inc.InitNextNodes(ctx, tx, initReq); err != nil {
 		return false, err
 	}
 	return true, nil

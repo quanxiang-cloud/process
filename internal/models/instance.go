@@ -4,18 +4,18 @@ import "gorm.io/gorm"
 
 // Instance info
 type Instance struct {
-	ID         string `json:"id"`
-	ProcID     string `json:"procId"`
-	Name       string `json:"name"`
-	PID        string `json:"pId"`
-	Status     string `json:"status"`    // COMPLETED, ACTIVE
-	AppStatus  string `json:"appStatus"` // ACTIVE,SUSPEND
-	EndTime    string `json:"endTime"`
-	CreatorID  string `json:"creatorId"`
-	CreateTime string `json:"createTime"`
-	ModifierID string `json:"modifierId"`
-	ModifyTime string `json:"modifyTime"`
-	TenantID   string `json:"tenantId"`
+	ID         string
+	ProcID     string
+	Name       string
+	PID        string
+	Status     string // COMPLETED, ACTIVE
+	AppStatus  string // ACTIVE,SUSPEND
+	EndTime    string
+	CreatorID  string
+	CreateTime string
+	ModifierID string
+	ModifyTime string
+	TenantID   string
 }
 
 // InstanceRepo interface

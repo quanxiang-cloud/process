@@ -24,8 +24,8 @@ const (
 
 // task event
 const (
-	NodeInitBeginEvent   = "nodeInitBeginEvent"
-	NodeInitEndEvent     = "nodeInitEndEvent"
+	TaskStart            = "taskStartEvent"
+	TaskEnd              = "taskEndEvent"
 	TaskCompleted        = "taskCompletedEvent"
 	InclusiveGatewayInit = "inclusiveGatewayInitEvent"
 )

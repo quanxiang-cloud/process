@@ -16,14 +16,12 @@ var Config *Configs
 
 // Configs 总配置结构体
 type Configs struct {
-	Model         string        `yaml:"model"`
-	Port          string        `yaml:"port"`
-	Mysql         mysql2.Config `yaml:"mysql"`
-	Log           logger.Config `yaml:"log"`
-	InternalNet   client.Config `yaml:"internalNet"`
-	Redis         redis2.Config `yaml:"redis"`
-	APIHost       APIHost       `yaml:"api"`
-	FlowRPCServer string        `yaml:"flowRpcServer"`
+	Model       string        `yaml:"model"`
+	Port        string        `yaml:"port"`
+	Mysql       mysql2.Config `yaml:"mysql"`
+	Log         logger.Config `yaml:"log"`
+	InternalNet client.Config `yaml:"internalNet"`
+	Redis       redis2.Config `yaml:"redis"`
 }
 
 // HTTPServer http服务配置
@@ -32,12 +30,6 @@ type HTTPServer struct {
 	ReadHeaderTimeOut time.Duration `yaml:"readHeaderTimeOut"`
 	WriteTimeOut      time.Duration `yaml:"writeTimeOut"`
 	MaxHeaderBytes    int           `yaml:"maxHeaderBytes"`
-}
-
-// APIHost api host
-type APIHost struct {
-	OrgHost  string `yaml:"orgHost" validate:"required"`
-	FlowHost string `yaml:"flowHost" validate:"required"`
 }
 
 // Init 初始化

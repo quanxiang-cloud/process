@@ -7,10 +7,14 @@ port: :9016
 #-------------------mysql配置---------------------
 mysql:
   db: process
-  host: localhost:3306 
+  host: 192.168.200.18:3306
+  #  host: 192.168.200.32:3306
   user: root
-  password: db-password
+  #  user: qxp
+  password: uyWxtvt6gCOy3VPLB3rTpa0rQ
+  #  password: ZHU**jie9
   log: true
+
 
 
 #  -------------------- log --------------------
@@ -34,13 +38,8 @@ internalNet:
 #-------------------redis配置-----------------
 redis:
   addrs:
-    - 127.0.0.1:6379
+    - 192.168.200.18:6379
+    - 192.168.200.19:6379
+    - 192.168.200.20:6379
   username:
   password:
-
-#  -------------------- internal server client --------------------
-api:
-  orgHost: http://org.inner/
-  flowHost: http://127.0.0.1:9080/
-
-flowRpcServer: flow:9081

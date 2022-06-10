@@ -20,7 +20,6 @@ import (
 	"github.com/quanxiang-cloud/process/pkg/misc/redis2"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
 	"github.com/quanxiang-cloud/process/pkg/page"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -48,7 +47,7 @@ type Task interface {
 	CompleteTask(ctx context.Context, req *CompleteTaskReq) (*CompleteTaskResp, error)
 	BatchCompleteNonModelTask(ctx context.Context, req *CompleteNonModelTaskReq) (*CompleteTaskResp, error)
 	CompleteExecution(ctx context.Context, req *CompleteExecutionReq) (*CompleteTaskResp, error)
-	InitTask(ctx context.Context, tx *gorm.DB, req *component.CompleteNodeReq) (*pb.NodeEventRespData, error)
+	InitTask(ctx context.Context, tx *gorm.DB, req *component.CompleteNodeReq) error
 	InstanceTasks(ctx context.Context, req *InstanceTaskReq) ([]*models.Task, error)
 	InstanceDoneTasks(ctx context.Context, req *QueryTaskReq) (*page.Page, error)
 	AddNonNodeTask(ctx context.Context, req *AddTaskReq) (*AddTaskResp, error)
@@ -324,7 +323,7 @@ func (t *task) AddNonNodeTask(ctx context.Context, req *AddTaskReq) (resp *AddTa
 			UserID:    req.UserID,
 			NextNodes: req.NodeDefKey,
 		}
-		if err := cNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+		if err := cNode.Init(ctx, tx, initNodeReq); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, initNodeReq.InitResp.Tasks)
@@ -359,7 +358,7 @@ func (t *task) AddNodeTask(ctx context.Context, req *AddTaskReq) (*AddTaskResp, 
 	}
 	initNodeReq := packInitNodeReq(nd, inst, execution, req.UserID, task.NodeDefKey, internal.TempModel)
 	tx := t.db.Begin()
-	if err = cNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+	if err = cNode.Init(ctx, tx, initNodeReq); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -529,7 +528,7 @@ func (t *task) FallbackTask(ctx context.Context, req *AddTaskReq) (resp *AddTask
 		return nil, err
 	}
 	initNodeReq := packInitNodeReq(nd, inst, execution, req.UserID, "", "")
-	if err = cNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+	if err = cNode.Init(ctx, tx, initNodeReq); err != nil {
 		return nil, err
 	}
 	if err = t.DoDeleteTask(tx, task); err != nil {
@@ -585,36 +584,34 @@ func (t *task) AddHistoryTask(ctx context.Context, req *AddHistoryTaskReq) (*Add
 }
 
 // InitTask init next task by component info
-func (t *task) InitTask(ctx context.Context, tx *gorm.DB, req *component.CompleteNodeReq) (*pb.NodeEventRespData, error) {
+func (t *task) InitTask(ctx context.Context, tx *gorm.DB, req *component.CompleteNodeReq) error {
 	nextNodeDefKeys := strings.Split(req.NextNodes, ",")
 	if len(nextNodeDefKeys) > 0 {
 		for _, value := range nextNodeDefKeys {
-			d := &pb.NodeEventReqData{
-				ProcessInstanceID: req.Instance.ID,
-				ProcessID:         req.Instance.ProcID,
-				NodeDefKey:        value,
-				ExecutionID:       req.Execution.ID,
+			d := map[string]string{
+				"processInstanceID": req.Instance.ID,
+				"processID":         req.Instance.ProcID,
+				"userID":            req.UserID,
+				"nodeDefKey":        value,
+				"requestID":         ctx.Value(internal.RequestID).(string),
 			}
-
-			nodeInitBeginResp, err := t.PublishMessage(ctx, internal.SynchronizationMode, internal.NodeInitBeginEvent, d)
-
-			if err != nil {
-				return nil, err
+			if err := t.PublishMessage(ctx, internal.SynchronizationMode, internal.TaskStart, d); err != nil {
+				return err
 			}
 			fmt.Println("rpc返回完成", d, time2.NowUnixMill())
 			nextNode, err := t.nodeRepo.FindByDefKey(tx, req.Instance.ProcID, value)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			if nextNode == nil {
 				nextNode, err = t.nodeRepo.FindInstanceNode(tx, req.Instance.ID, value)
 				if err != nil {
-					return nil, err
+					return err
 				}
 			}
 			cNode, err := component.NodeFactory(nextNode.NodeType)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			initNodeReq := &component.InitNodeReq{
 				Execution: req.Execution,
@@ -623,15 +620,17 @@ func (t *task) InitTask(ctx context.Context, tx *gorm.DB, req *component.Complet
 				UserID:    req.UserID,
 				Params:    req.Params,
 			}
-			err = cNode.Init(ctx, tx, initNodeReq, nodeInitBeginResp)
+			err = cNode.Init(ctx, tx, initNodeReq)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			d.TaskID = strings.Split(initNodeReq.InitResp.EventTaskID, ",")
-			return t.PublishMessage(ctx, internal.AsynchronousMode, internal.NodeInitEndEvent, d)
+			d["taskID"] = initNodeReq.InitResp.EventTaskID
+			if err := t.PublishMessage(ctx, internal.AsynchronousMode, internal.TaskEnd, d); err != nil {
+				return err
+			}
 		}
 	}
-	return nil, nil
+	return nil
 }
 
 func (t *task) CompleteExecution(ctx context.Context, req *CompleteExecutionReq) (resp *CompleteTaskResp, err error) {
@@ -724,7 +723,7 @@ func (t *task) CompleteExecution(ctx context.Context, req *CompleteExecutionReq)
 				},
 				Node: nd,
 			}
-			err = cNode.Init(ctx, tx, initNodeReq, nil)
+			err = cNode.Init(ctx, tx, initNodeReq)
 			if err != nil {
 				return nil, err
 			}
@@ -784,13 +783,13 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 	if err != nil {
 		return nil, err
 	}
-	// U := models.Task{
+	//U := models.Task{
 	//	ID:       comReq.Task.ID,
 	//	Comments: comReq.Comments,
-	// }
-	// if err := t.taskRepo.Update(tx, &U); err != nil {
+	//}
+	//if err := t.taskRepo.Update(tx, &U); err != nil {
 	//	return nil, err
-	// }
+	//}
 	completeStatus, err := cNode.Complete(ctx, tx, comReq)
 	if err != nil {
 		return nil, err
@@ -810,7 +809,7 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 				UserID:    req.UserID,
 				Params:    req.Params,
 			}
-			if err = fNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+			if err = fNode.Init(ctx, tx, initNodeReq); err != nil {
 				return nil, err
 			}
 			tx.Commit()
@@ -824,7 +823,7 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 			}
 			comReq.Execution = ex
 		}
-		_, err = t.InitTask(ctx, tx, comReq)
+		err = t.InitTask(ctx, tx, comReq)
 		if err != nil {
 			return nil, err
 		}
@@ -911,20 +910,7 @@ func (t *task) SetListener(l *listener.Listener) {
 }
 
 // PublishMessage PublishMessage
-// func (t *task) PublishMessage(ctx context.Context, mode, name string, data map[string]string) error {
-// 	ms := &listener.EventMessage{
-// 		EventName: name,
-// 		EventData: data,
-// 		Message: &listener.Message{
-// 			MessageType:     "eventMessage",
-// 			MessageSendMode: mode,
-// 		},
-// 	}
-// 	err := t.l.Notify(ctx, ms)
-// 	return err
-// }
-
-func (t *task) PublishMessage(ctx context.Context, mode, name string, data *pb.NodeEventReqData) (*pb.NodeEventRespData, error) {
+func (t *task) PublishMessage(ctx context.Context, mode, name string, data map[string]string) error {
 	ms := &listener.EventMessage{
 		EventName: name,
 		EventData: data,
@@ -933,8 +919,8 @@ func (t *task) PublishMessage(ctx context.Context, mode, name string, data *pb.N
 			MessageSendMode: mode,
 		},
 	}
-
-	return t.l.Notify(ctx, ms)
+	err := t.l.Notify(ctx, ms)
+	return err
 }
 
 func (t *task) updateTaskInstanceModifyTime(instanceID string) error {

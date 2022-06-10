@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	// OrgHost host
+	OrgHost = "http://org"
+)
+
 // Identity interface
 type Identity interface {
 	FindUsersByGroup(ctx context.Context, groupID string) (*DepUsersResp, error)
@@ -26,9 +31,11 @@ type identity struct {
 // NewIdentity init
 func NewIdentity(conf *config.Configs) (Identity, error) {
 	i := &identity{
-		client:           client.New(conf.InternalNet),
-		getGroupsByUser:  conf.APIHost.OrgHost + "/api/v1/org/o/user/ids",
-		getUsersByGroups: conf.APIHost.OrgHost + "/api/v1/org/o/user/dep/id",
+		client: client.New(conf.InternalNet),
+		//getGroupsByUser:  OrgHost + "/api/v1/org/usersInfo",
+		//getUsersByGroups: OrgHost + "/api/v1/org/otherGetUserList",
+		getGroupsByUser:  OrgHost + "/api/v1/org/o/user/ids",
+		getUsersByGroups: OrgHost + "/api/v1/org/o/user/dep/id",
 	}
 	return i, nil
 }

@@ -95,11 +95,6 @@ func NewRouter(c *config.Configs) (*Router, error) {
 		v1.POST("/preNode", process.TaskPreNode)
 		// 应用删除时，对应的流程实例挂起 或恢复
 		v1.POST("/appOperation", process.AppDelete)
-
-		v1.POST("/completeNode", process.CompleteNode)
-
-		v1.POST("/nodeInstanceList", process.NodeInstanceList)
-
 	}
 
 	return &Router{

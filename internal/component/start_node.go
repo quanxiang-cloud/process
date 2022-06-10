@@ -2,7 +2,6 @@ package component
 
 import (
 	"context"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +11,7 @@ type StartNode struct {
 }
 
 // Init init node
-func (n *StartNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (n *StartNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	cr := &CompleteNodeReq{
 		Node:      req.Node,
 		UserID:    req.UserID,

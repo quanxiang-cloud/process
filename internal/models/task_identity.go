@@ -6,17 +6,17 @@ import (
 
 // TaskIdentity info
 type TaskIdentity struct {
-	ID           string `json:"id"`
-	TaskID       string `json:"taskId"`
-	UserID       string `json:"userId"`
-	GroupID      string `json:"groupId"`
-	IdentityType string `json:"identityType"` // USER、GROUP
-	InstanceID   string `json:"instanceId"`
-	CreatorID    string `json:"creatorId"`
-	CreateTime   string `json:"createTime"`
-	ModifierID   string `json:"modifierId"`
-	ModifyTime   string `json:"modifyTime"`
-	TenantID     string `json:"tenantId"`
+	ID           string
+	TaskID       string
+	UserID       string
+	GroupID      string
+	IdentityType string // USER、GROUP
+	InstanceID   string
+	CreatorID    string
+	CreateTime   string
+	ModifierID   string
+	ModifyTime   string
+	TenantID     string
 }
 
 // TaskIdentityRepo interface

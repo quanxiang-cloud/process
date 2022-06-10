@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/quanxiang-cloud/process/internal"
 	"github.com/quanxiang-cloud/process/internal/models"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +17,7 @@ type FreeNode struct {
 }
 
 // Init init free component
-func (n *FreeNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (n *FreeNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	currentNode, err := n.NodeRepo.FindByDefKey(tx, req.Task.ProcID, req.NextNodes)
 	if err != nil {
 		return err
@@ -31,7 +30,7 @@ func (n *FreeNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, init
 		return err
 	}
 	// 会签节点、分支节点，需要特殊处理 todo
-	if err = cNode.Init(ctx, tx, req, nil); err != nil {
+	if err = cNode.Init(ctx, tx, req); err != nil {
 		return err
 	}
 	return nil

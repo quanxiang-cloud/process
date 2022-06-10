@@ -4,20 +4,20 @@ import "gorm.io/gorm"
 
 // Node info
 type Node struct {
-	ID             string `json:"id"`
-	ProcID         string `json:"procId"`
-	ProcInstanceID string `json:"procInstanceId"`
-	Name           string `json:"name"`
-	DefKey         string `json:"defKey"`
-	NodeType       string `json:"nodeType"`   // Start、End、User、MultiUser、Service、Script、ParallelGateway、InclusiveGateway、SubProcess
-	SubProcID      string `json:"subProcId"`  // Type is SubProcess
-	PairDefKey     string `json:"pairDefKey"` // ParallelGateway < == > InclusiveGateway
-	Desc           string `json:"desc"`
-	CreatorID      string `json:"creatorId"`
-	CreateTime     string `json:"createTime"`
-	ModifierID     string `json:"modifierId"`
-	ModifyTime     string `json:"modifyTime"`
-	TenantID       string `json:"tenantId"`
+	ID             string
+	ProcID         string
+	ProcInstanceID string
+	Name           string
+	DefKey         string
+	NodeType       string // Start、End、User、MultiUser、Service、Script、ParallelGateway、InclusiveGateway、SubProcess
+	SubProcID      string // Type is SubProcess
+	PairDefKey     string // ParallelGateway < == > InclusiveGateway
+	Desc           string
+	CreatorID      string
+	CreateTime     string
+	ModifierID     string
+	ModifyTime     string
+	TenantID       string
 }
 
 // NodeRepo interface

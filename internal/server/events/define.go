@@ -2,7 +2,6 @@ package events
 
 import (
 	"context"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 )
 
 // Observed Observed
@@ -14,7 +13,7 @@ type Observed interface {
 
 // Observer Observer
 type Observer interface {
-	Update(ctx context.Context, param Param) (*pb.NodeEventRespData, error)
+	Update(context.Context, Param) error
 }
 
 // Param Param

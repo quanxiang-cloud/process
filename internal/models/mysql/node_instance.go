@@ -56,16 +56,3 @@ func (ni *nodeInstanceRepo) FindByTaskID(db *gorm.DB, id string) (*models.NodeIn
 	}
 	return modal, err
 }
-
-func (ni *nodeInstanceRepo) FindByInstanceID(db *gorm.DB, instanceID string) ([]*models.NodeInstance, error) {
-	datas := make([]*models.NodeInstance, 0)
-	err := db.Table(ni.TableName()).
-		Where("proc_instance_id = ?", instanceID).
-		Find(&datas).
-		Error
-	if err != nil {
-		return nil, err
-	}
-
-	return datas, err
-}

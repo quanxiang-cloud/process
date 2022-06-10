@@ -7,7 +7,6 @@ import (
 	"github.com/quanxiang-cloud/process/pkg"
 	"github.com/quanxiang-cloud/process/pkg/misc/id2"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -23,7 +22,7 @@ type UserNode struct {
 }
 
 // Init init user component
-func (n *UserNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (n *UserNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	il, err := n.IdentityLinkRepo.QueryByNodeID(tx, req.Node.ID)
 	if err != nil {
 		return err

@@ -8,7 +8,6 @@ import (
 	"github.com/quanxiang-cloud/process/pkg/client"
 	"github.com/quanxiang-cloud/process/pkg/config"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -23,7 +22,7 @@ type MultiUserNode struct {
 }
 
 // Init init node
-func (n *MultiUserNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (n *MultiUserNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	// --------------------add component instance begin--------------------------
 	initNodeInstanceReq := InitNodeInstanceReq{
 		Execution: req.Execution,
@@ -130,7 +129,7 @@ func (n *MultiUserNode) createSingleNode(ctx context.Context, tx *gorm.DB, req *
 	initNodeReq.UserID = req.UserID
 	initNodeReq.NextNodes = req.NextNodes
 	initNodeReq.TaskType = req.TaskType
-	err := n.UserNode.Init(ctx, tx, initNodeReq, nil)
+	err := n.UserNode.Init(ctx, tx, initNodeReq)
 	if err != nil {
 		return err
 	}

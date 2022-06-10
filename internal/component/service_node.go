@@ -3,7 +3,6 @@ package component
 import (
 	"context"
 	"github.com/quanxiang-cloud/process/internal/models"
-	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +13,7 @@ type ServiceNode struct {
 }
 
 // Init init node
-func (s *ServiceNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
+func (s *ServiceNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
 	// init node instance
 	initNodeInstanceReq := InitNodeInstanceReq{
 		Execution: req.Execution,
@@ -26,36 +25,14 @@ func (s *ServiceNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, i
 	if _, err := s.CreateNodeInstance(tx, &initNodeInstanceReq); err != nil {
 		return err
 	}
-	if initParam == nil || initParam.ExecuteType != PauseExecution {
-		completeNodeReq := &CompleteNodeReq{
-			Execution: req.Execution,
-			Instance:  req.Instance,
-			Node:      req.Node,
-			NextNodes: req.NextNodes,
-			UserID:    req.UserID,
-			Params:    req.Params,
-		}
-		_, err := s.Complete(ctx, tx, completeNodeReq)
+	if err := s.InitNextNodes(ctx, tx, req); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // Complete complete task
 func (s *ServiceNode) Complete(ctx context.Context, tx *gorm.DB, req *CompleteNodeReq) (bool, error) {
-	initNodeReq := &InitNodeReq{
-		Execution: req.Execution,
-		Instance:  req.Instance,
-		Node:      req.Node,
-		NextNodes: req.NextNodes,
-		UserID:    req.UserID,
-		Params:    req.Params,
-	}
-	if _, err := s.InitNextNodes(ctx, tx, initNodeReq); err != nil {
-		return false, err
-	}
-
 	// nothing
 	return false, nil
 }

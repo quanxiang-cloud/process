@@ -6,14 +6,14 @@ import (
 
 // Model info
 type Model struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	DefKey     string `json:"defKey"`
-	CreatorID  string `json:"creatorId"`
-	CreateTime string `json:"createTime"`
-	ModifierID string `json:"modifierId"`
-	ModifyTime string `json:"modifyTime"`
-	TenantID   string `json:"tenantId"`
+	ID         string
+	Name       string
+	DefKey     string
+	CreatorID  string
+	CreateTime string
+	ModifierID string
+	ModifyTime string
+	TenantID   string
 }
 
 // ModelRepo interface
