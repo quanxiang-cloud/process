@@ -4,33 +4,33 @@ import "gorm.io/gorm"
 
 // Task info
 type Task struct {
-	ID             string
-	ProcID         string
-	ProcInstanceID string
-	ExecutionID    string
-	NodeID         string
-	NodeDefKey     string
-	NextNodeDefKey string
-	Name           string
-	Desc           string // 例如：审批、填写、抄送、阅示
-	TaskType       string // Model模型任务、TempModel临时模型任务、NonModel非模型任务
-	Assignee       string
-	Status         string // COMPLETED, ACTIVE
-	DueTime        string
-	EndTime        string
-	CreatorID      string
-	CreateTime     string
-	ModifierID     string
-	ModifyTime     string
-	TenantID       string
-	Comments       string
+	ID             string `json:"id"`
+	ProcID         string `json:"procId"`
+	ProcInstanceID string `json:"procInstanceId"`
+	ExecutionID    string `json:"executionId"`
+	NodeID         string `json:"nodeId"`
+	NodeDefKey     string `json:"nodeDefKey"`
+	NextNodeDefKey string `json:"nextNodeDefKey"`
+	Name           string `json:"name"`
+	Desc           string `json:"desc"`     // 例如：审批、填写、抄送、阅示
+	TaskType       string `json:"taskType"` // Model模型任务、TempModel临时模型任务、NonModel非模型任务
+	Assignee       string `json:"assignee"`
+	Status         string `json:"status"` // COMPLETED, ACTIVE
+	DueTime        string `json:"dueTime"`
+	EndTime        string `json:"endTime"`
+	Comments       string `json:"comments"`
+	CreatorID      string `json:"creatorId"`
+	CreateTime     string `json:"createTime"`
+	ModifierID     string `json:"modifierId"`
+	ModifyTime     string `json:"modifyTime"`
+	TenantID       string `json:"tenantId"`
 }
 
 // TaskVO TaskVO
 type TaskVO struct {
 	Task
-	NodeInstanceID  string
-	NodeInstancePid string
+	NodeInstanceID  string `json:"tenantId"`
+	NodeInstancePid string `json:"tenantId"`
 }
 
 // QueryTaskCondition condition

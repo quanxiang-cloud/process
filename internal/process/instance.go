@@ -35,6 +35,9 @@ type Instance interface {
 	SaveVariables(ctx context.Context, req *SaveVariablesReq) (*SaveVariablesResp, error)
 	FindVariables(ctx context.Context, req *GetVariablesReq) (map[string]interface{}, error)
 	AppDeleteHandler(ctx context.Context, req *AppDelReq) (*AppDelResp, error)
+	CompleteNode(ctx context.Context, req *InitNextNodeReq) error
+
+	NodeInstanceList(ctx context.Context, req *NodeInstanceListReq) ([]*models.NodeInstanceVO, error)
 }
 
 const saveTime = time.Hour * time.Duration(12)
@@ -116,6 +119,7 @@ type instance struct {
 	modalRepo        models.ModelRepo
 	instanceRepo     models.InstanceRepo
 	taskRepo         models.TaskRepo
+	historyTaskRepo  models.HistoryTaskRepo
 	nodeRepo         models.NodeRepo
 	nodeLinkRepo     models.NodeLinkRepo
 	executionRepo    models.ExecutionRepo
@@ -136,6 +140,7 @@ func NewInstance(conf *config.Configs, opts ...options.Options) (Instance, error
 		modalRepo:        mysql.NewModelRepo(),
 		instanceRepo:     mysql.NewInstanceRepo(),
 		taskRepo:         mysql.NewTaskRepo(),
+		historyTaskRepo:  mysql.NewHistoryTaskRepo(),
 		nodeRepo:         mysql.NewNodeRepo(),
 		nodeLinkRepo:     mysql.NewNodeLinkRepo(),
 		executionRepo:    mysql.NewExecutionRepo(),
@@ -220,7 +225,7 @@ func (i *instance) InitInstance(ctx context.Context, req *InitInstanceReq) (*Sta
 	// --------------------complete start component end-------------------
 
 	// init next task
-	err = i.task.InitTask(ctx, tx, completeReq)
+	_, err = i.task.InitTask(ctx, tx, completeReq)
 	if err != nil {
 		return nil, err
 	}
@@ -472,18 +477,18 @@ func (i *instance) InstanceList(ctx context.Context, req *ListProcessReq) (*List
 	}, nil
 }
 
-func (i *instance) PublishMessage(ctx context.Context, name string, data map[string]string) error {
-	ms := &listener.EventMessage{
-		EventName: name,
-		EventData: data,
-		Message: &listener.Message{
-			MessageType:     "processEvent",
-			MessageSendMode: "synchronization",
-		},
-	}
-	err := i.l.Notify(ctx, ms)
-	return err
-}
+// func (i *instance) PublishMessage(ctx context.Context, name string, data map[string]string) error {
+// 	ms := &listener.EventMessage{
+// 		EventName: name,
+// 		EventData: data,
+// 		Message: &listener.Message{
+// 			MessageType:     "processEvent",
+// 			MessageSendMode: "synchronization",
+// 		},
+// 	}
+// 	err := i.l.Notify(ctx, ms)
+// 	return err
+// }
 
 func (i *instance) AppDeleteHandler(ctx context.Context, req *AppDelReq) (*AppDelResp, error) {
 	switch req.Action {
@@ -501,4 +506,85 @@ func (i *instance) AppDeleteHandler(ctx context.Context, req *AppDelReq) (*AppDe
 		}
 	}
 	return &AppDelResp{}, nil
+}
+
+func (i *instance) CompleteNode(ctx context.Context, req *InitNextNodeReq) error {
+	node, err := i.nodeRepo.FindByDefKey(i.db, req.ProcessID, req.NodeDefKey)
+	if err != nil {
+		return err
+	}
+
+	cNode, err := component.NodeFactory(node.NodeType)
+	if err != nil {
+		return err
+	}
+
+	execution, err := i.executionRepo.FindByID(i.db, req.ExecutionID)
+	if err != nil {
+		return err
+	}
+
+	instance, err := i.instanceRepo.FindByID(i.db, req.InstanceID)
+	if err != nil {
+		return err
+	}
+
+	completeNodeReq := &component.CompleteNodeReq{
+		Execution: execution,
+		Instance:  instance,
+		Node:      node,
+		NextNodes: req.NextNodes,
+		UserID:    req.UserID,
+		Params:    req.Params,
+	}
+
+	_, err = cNode.Complete(ctx, i.db, completeNodeReq)
+	return err
+}
+
+// NodeInstanceList get node instance list
+func (i *instance) NodeInstanceList(ctx context.Context, req *NodeInstanceListReq) ([]*models.NodeInstanceVO, error) {
+	nodeInstances, err := i.nodeInstanceRepo.FindByInstanceID(i.db, req.ProcInstanceID)
+	// 关联查询task信息
+	if err != nil {
+		return nil, err
+	}
+
+	taskIDs := make([]string, 0)
+	for _, v := range nodeInstances {
+		if len(v.TaskID) > 0 {
+			taskIDs = append(taskIDs, v.TaskID)
+		}
+	}
+
+	tasks, err := i.taskRepo.FindByIDs(i.db, taskIDs)
+	if err != nil {
+		return nil, err
+	}
+	historyTasks, err := i.historyTaskRepo.FindByIDs(i.db, taskIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	taskMap := make(map[string]string, 0)
+	for _, task := range tasks {
+		taskMap[task.ID] = task.Assignee
+	}
+	for _, task := range historyTasks {
+		taskMap[task.ID] = task.Assignee
+	}
+
+	nodeInstanceVOs := make([]*models.NodeInstanceVO, 0)
+	for _, v := range nodeInstances {
+		nodeInstanceVO := &models.NodeInstanceVO{
+			NodeInstance: v,
+		}
+		if len(v.TaskID) > 0 {
+			nodeInstanceVO.Assignee = taskMap[v.TaskID]
+		}
+
+		nodeInstanceVOs = append(nodeInstanceVOs, nodeInstanceVO)
+	}
+
+	return nodeInstanceVOs, nil
 }

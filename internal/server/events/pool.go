@@ -2,12 +2,13 @@ package events
 
 import (
 	"context"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"sync"
 	"sync/atomic"
 )
 
 // TaskFunc TaskFunc
-type TaskFunc func(ctx context.Context, param Param) error
+type TaskFunc func(ctx context.Context, param Param) (*pb.NodeEventRespData, error)
 
 // Task Task
 type Task struct {

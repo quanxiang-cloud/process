@@ -10,8 +10,16 @@ import (
 	listener "github.com/quanxiang-cloud/process/internal/server/events"
 	"github.com/quanxiang-cloud/process/pkg/misc/id2"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
+)
+
+// ExecuteType
+const (
+	PauseExecution = "pauseExecution"
+	EndExecution   = "endExecution"
+	EndProcess     = "endProcess"
 )
 
 // Node Node
@@ -27,7 +35,7 @@ type Node struct {
 
 // INode node interface
 type INode interface {
-	Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error
+	Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error
 	Complete(ctx context.Context, tx *gorm.DB, req *CompleteNodeReq) (bool, error)
 }
 
@@ -83,33 +91,35 @@ func (n *Node) UpdateExecution(tx *gorm.DB, req *CompleteNodeReq, nodeInstanceID
 }
 
 // InitNextNodes InitNextNodes
-func (n *Node) InitNextNodes(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
+func (n *Node) InitNextNodes(ctx context.Context, tx *gorm.DB, req *InitNodeReq) (*pb.NodeEventRespData, error) {
 	nextNodeDefKeys, err := n.NodeLinkRepo.FindNextNodesByNodeID(tx, req.Instance.ProcID, req.Node.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if req.NextNodes != "" {
 		nextNodeDefKeys = strings.Split(req.NextNodes, ",")
 	}
 	// init next node
 	for i := 0; i < len(nextNodeDefKeys); i++ {
-		d := map[string]string{
-			"processInstanceID": req.Instance.ID,
-			"processID":         req.Instance.ProcID,
-			"userID":            req.UserID,
-			"nodeDefKey":        nextNodeDefKeys[i],
-			"requestID":         ctx.Value(internal.RequestID).(string),
+		d := &pb.NodeEventReqData{
+			ProcessInstanceID: req.Instance.ID,
+			ProcessID:         req.Instance.ProcID,
+			// "userID":            req.UserID,
+			NodeDefKey:  nextNodeDefKeys[i],
+			ExecutionID: req.Execution.ID,
 		}
-		if err := n.PublishMessage(ctx, internal.SynchronizationMode, internal.TaskStart, d); err != nil {
-			return err
+
+		nodeInitBeginResp, err := n.PublishMessage(ctx, internal.SynchronizationMode, internal.NodeInitBeginEvent, d)
+		if err != nil {
+			return nil, err
 		}
 		node, err := n.NodeRepo.FindByDefKey(tx, req.Instance.ProcID, nextNodeDefKeys[i])
 		if err != nil {
-			return err
+			return nil, err
 		}
 		cNode, err := NodeFactory(node.NodeType)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		initNodeReq := &InitNodeReq{
 			Execution: req.Execution,
@@ -118,20 +128,18 @@ func (n *Node) InitNextNodes(ctx context.Context, tx *gorm.DB, req *InitNodeReq)
 			UserID:    req.UserID,
 			Params:    req.Params,
 		}
-		err = cNode.Init(ctx, tx, initNodeReq)
+		err = cNode.Init(ctx, tx, initNodeReq, nodeInitBeginResp)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		d["taskID"] = initNodeReq.InitResp.EventTaskID
-		if err := n.PublishMessage(ctx, internal.AsynchronousMode, internal.TaskEnd, d); err != nil {
-			return err
-		}
+		d.TaskID = strings.Split(initNodeReq.InitResp.EventTaskID, ",")
+		return n.PublishMessage(ctx, internal.AsynchronousMode, internal.NodeInitEndEvent, d)
 	}
-	return nil
+	return nil, nil
 }
 
 // PublishMessage PublishMessage
-func (n *Node) PublishMessage(ctx context.Context, mode, name string, data map[string]string) error {
+func (n *Node) PublishMessage(ctx context.Context, mode, name string, data *pb.NodeEventReqData) (*pb.NodeEventRespData, error) {
 	ms := &listener.EventMessage{
 		EventName: name,
 		EventData: data,
@@ -140,8 +148,8 @@ func (n *Node) PublishMessage(ctx context.Context, mode, name string, data map[s
 			MessageSendMode: mode,
 		},
 	}
-	err := n.Listener.Notify(ctx, ms)
-	return err
+
+	return n.Listener.Notify(ctx, ms)
 }
 
 // UserTaskIdentity UserTaskIdentity

@@ -4,7 +4,7 @@ package client
 //import (
 //	"context"
 //	"fmt"
-//	"github.com/quanxiang-cloud/process/pkg/config"
+//	"git.internal.yunify.com/qxp/process/pkg/config"
 //	"testing"
 //)
 //

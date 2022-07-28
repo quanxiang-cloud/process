@@ -7,6 +7,7 @@ import (
 	"github.com/quanxiang-cloud/process/pkg"
 	"github.com/quanxiang-cloud/process/pkg/client"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -21,7 +22,7 @@ type NonModelNode struct {
 }
 
 // Init init user component
-func (n *NonModelNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
+func (n *NonModelNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
 	if strings.Contains(req.Assignee, internal.Dep) {
 		users, err := n.Identity.FindUsersByGroup(ctx, req.Assignee[4:])
 		if err != nil {

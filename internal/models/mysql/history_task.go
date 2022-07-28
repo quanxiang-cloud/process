@@ -74,3 +74,15 @@ func (ht *historyTaskRepo) FindPreTask(db *gorm.DB, instanceID, executionID stri
 		Error
 	return rest, err
 }
+
+func (ht *historyTaskRepo) FindByIDs(db *gorm.DB, ids []string) ([]*models.HistoryTask, error) {
+	rest := make([]*models.HistoryTask, 0)
+	err := db.Table(ht.TableName()).
+		Where("id in (?)", ids).
+		Find(&rest).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return rest, nil
+}

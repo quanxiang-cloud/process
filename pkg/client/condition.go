@@ -7,11 +7,7 @@ import (
 	"github.com/quanxiang-cloud/process/pkg/misc/client"
 	"github.com/quanxiang-cloud/process/pkg/misc/error2"
 	"net/http"
-)
-
-const (
-	// FlowHost host
-	FlowHost = "http://flow"
+	"strings"
 )
 
 // Condition service
@@ -22,7 +18,7 @@ type Condition interface {
 // NewCondition new
 func NewCondition(conf *config.Configs) (Condition, error) {
 	c := &condition{
-		getConditionResult: FlowHost + "/api/v1/flow/formula/calculation",
+		getConditionResult: conf.APIHost.FlowHost + "/api/v1/flow/formula/calculation",
 		client:             client.New(conf.InternalNet),
 	}
 	return c, nil
@@ -38,7 +34,7 @@ func (c *condition) GetConditionResult(ctx context.Context, conditionStr string,
 	var resp map[string]bool
 
 	req := map[string]interface{}{
-		"expression": conditionStr,
+		"expression": strings.Replace(conditionStr, "\"", "'", -1),
 		"parameter":  params,
 	}
 
