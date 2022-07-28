@@ -3,6 +3,7 @@ package mysql
 import (
 	"encoding/json"
 	"github.com/quanxiang-cloud/process/internal/models"
+	"github.com/quanxiang-cloud/process/pkg"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
 	"gorm.io/gorm"
 )
@@ -100,6 +101,15 @@ func (v *variablesRepo) GetInstanceValue(db *gorm.DB, instanceID string) (map[st
 		}
 	}
 	return res, nil
+}
+
+func (v *variablesRepo) GetInstanceValueAndParams(db *gorm.DB, instanceID string, params map[string]interface{}) (map[string]interface{}, error) {
+	variables, err := v.GetInstanceValue(db, instanceID)
+	if err != nil {
+		return nil, err
+	}
+
+	return pkg.MergeMap(variables, params), nil
 }
 
 func (v *variablesRepo) GetInstanceValueByName(db *gorm.DB, instanceID string, names []string) (map[string]interface{}, error) {

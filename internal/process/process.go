@@ -133,3 +133,19 @@ type NodeLinkData struct {
 	NodeID    string `json:"id"`
 	Condition string `json:"condition"`
 }
+
+// InitNextNodeReq InitNextNodeReq
+type InitNextNodeReq struct {
+	ProcessID   string                 `json:"processID" binding:"required"`
+	InstanceID  string                 `json:"instanceID" binding:"required"`
+	NodeDefKey  string                 `json:"nodeDefKey" binding:"required"`
+	ExecutionID string                 `json:"executionID" binding:"required"`
+	NextNodes   string                 `json:"nextNodes"`
+	Params      map[string]interface{} `json:"params"`
+	UserID      string                 `json:"userID"`
+}
+
+// NodeInstanceListReq req
+type NodeInstanceListReq struct {
+	ProcInstanceID string `json:"procInstanceId"`
+}

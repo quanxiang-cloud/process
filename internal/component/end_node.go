@@ -5,6 +5,7 @@ import (
 	"github.com/quanxiang-cloud/process/internal"
 	"github.com/quanxiang-cloud/process/internal/models"
 	"github.com/quanxiang-cloud/process/pkg/misc/time2"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ type EndNode struct {
 }
 
 // Init init user component
-func (n *EndNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
+func (n *EndNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
 	cr := &CompleteNodeReq{
 		Node:      req.Node,
 		UserID:    req.UserID,

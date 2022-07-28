@@ -6,6 +6,7 @@ import (
 	"github.com/quanxiang-cloud/process/pkg/client"
 	"github.com/quanxiang-cloud/process/pkg/code"
 	"github.com/quanxiang-cloud/process/pkg/misc/error2"
+	"github.com/quanxiang-cloud/process/rpc/pb"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +22,7 @@ type ParallelGatewayNode struct {
 }
 
 // Init init node
-func (p *ParallelGatewayNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq) error {
+func (p *ParallelGatewayNode) Init(ctx context.Context, tx *gorm.DB, req *InitNodeReq, initParam *pb.NodeEventRespData) error {
 	nextNodeDefKeys, err := p.NodeLinkRepo.FindNextNodesByNodeID(tx, req.Instance.ProcID, req.Node.ID)
 	if err != nil {
 		return err
@@ -135,7 +136,7 @@ func (p *ParallelGatewayNode) createBranch(ctx context.Context, tx *gorm.DB, req
 		Params:    req.Params,
 	}
 	// err = cNode.Init(ctx, tx, initNodeReq)
-	err = p.InitNextNodes(ctx, tx, initNodeReq)
+	_, err = p.InitNextNodes(ctx, tx, initNodeReq)
 	if err != nil {
 		return err
 	}

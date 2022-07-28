@@ -4,18 +4,18 @@ import "gorm.io/gorm"
 
 // Execution info
 type Execution struct {
-	ID             string
-	ProcID         string
-	ProcInstanceID string
-	PID            string
-	NodeDefKey     string
-	NodeInstanceID string
-	IsActive       int8 // 1,0
-	CreatorID      string
-	CreateTime     string
-	ModifierID     string
-	ModifyTime     string
-	TenantID       string
+	ID             string `json:"id"`
+	ProcID         string `json:"procId"`
+	ProcInstanceID string `json:"procInstanceId"`
+	PID            string `json:"pId"`
+	NodeDefKey     string `json:"nodeDefKey"`
+	NodeInstanceID string `json:"nodeInstanceId"`
+	IsActive       int8   `json:"isActive"` // 1,0
+	CreatorID      string `json:"creatorId"`
+	CreateTime     string `json:"createTime"`
+	ModifierID     string `json:"modifierId"`
+	ModifyTime     string `json:"modifyTime"`
+	TenantID       string `json:"tenantId"`
 }
 
 // ExecutionRepo interface

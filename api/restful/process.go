@@ -2,13 +2,14 @@ package restful
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/quanxiang-cloud/process/pkg/misc/logger"
+	"github.com/quanxiang-cloud/process/pkg/misc/resp"
+
 	"github.com/quanxiang-cloud/process/internal/dispatcher"
 	"github.com/quanxiang-cloud/process/internal/process"
 	listener "github.com/quanxiang-cloud/process/internal/server/events"
 	"github.com/quanxiang-cloud/process/internal/server/options"
 	"github.com/quanxiang-cloud/process/pkg/config"
-	"github.com/quanxiang-cloud/process/pkg/misc/logger"
-	"github.com/quanxiang-cloud/process/pkg/misc/resp"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -388,4 +389,29 @@ func (p *Process) AppDelete(c *gin.Context) {
 		return
 	}
 	resp.Format(p.instance.AppDeleteHandler(logger.CTXTransfer(c), req)).Context(c)
+}
+
+// CompleteNode init next node
+func (p *Process) CompleteNode(c *gin.Context) {
+	req := &process.InitNextNodeReq{}
+	if err := c.ShouldBind(req); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// profile := header2.GetProfile(c)
+	// req.UserID = profile.UserID
+
+	resp.Format(nil, p.instance.CompleteNode(logger.CTXTransfer(c), req)).Context(c)
+}
+
+// NodeInstanceList get node instance list
+func (p *Process) NodeInstanceList(c *gin.Context) {
+	req := &process.NodeInstanceListReq{}
+	if err := c.ShouldBind(req); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	resp.Format(p.instance.NodeInstanceList(logger.CTXTransfer(c), req)).Context(c)
 }
