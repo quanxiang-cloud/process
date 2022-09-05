@@ -3,6 +3,7 @@ package process
 import (
 	"context"
 	"fmt"
+	"github.com/Jeffail/gabs"
 	rc "github.com/go-redis/redis/v8"
 	"github.com/quanxiang-cloud/process/internal"
 	"github.com/quanxiang-cloud/process/internal/component"
@@ -796,37 +797,40 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 		return nil, err
 	}
 	if completeStatus {
-		// 如果调用方指定了nextNode来初始化，优先
-		if req.NextNodeDefKey != "" {
-			fNode, err := component.NodeFactory(free)
+		commentsObj, err := gabs.ParseJSON([]byte(req.Comments))
+		if (commentsObj.Path("reviewResult").Data().(string)) != "REFUSE" {
+			// 如果调用方指定了nextNode来初始化，优先
+			if req.NextNodeDefKey != "" {
+				fNode, err := component.NodeFactory(free)
+				if err != nil {
+					return nil, err
+				}
+				initNodeReq := &component.InitNodeReq{
+					Task:      comReq.Task,
+					Execution: comReq.Execution,
+					Instance:  comReq.Instance,
+					NextNodes: req.NextNodeDefKey,
+					UserID:    req.UserID,
+					Params:    req.Params,
+				}
+				if err = fNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+					return nil, err
+				}
+				tx.Commit()
+				return resp, nil
+			}
+			switch comReq.Node.NodeType {
+			case multiUser:
+				ex, err := t.executionRepo.FindByID(tx, comReq.Execution.PID)
+				if err != nil {
+					return nil, err
+				}
+				comReq.Execution = ex
+			}
+			_, err = t.InitTask(ctx, tx, comReq)
 			if err != nil {
 				return nil, err
 			}
-			initNodeReq := &component.InitNodeReq{
-				Task:      comReq.Task,
-				Execution: comReq.Execution,
-				Instance:  comReq.Instance,
-				NextNodes: req.NextNodeDefKey,
-				UserID:    req.UserID,
-				Params:    req.Params,
-			}
-			if err = fNode.Init(ctx, tx, initNodeReq, nil); err != nil {
-				return nil, err
-			}
-			tx.Commit()
-			return resp, nil
-		}
-		switch comReq.Node.NodeType {
-		case multiUser:
-			ex, err := t.executionRepo.FindByID(tx, comReq.Execution.PID)
-			if err != nil {
-				return nil, err
-			}
-			comReq.Execution = ex
-		}
-		_, err = t.InitTask(ctx, tx, comReq)
-		if err != nil {
-			return nil, err
 		}
 		// delete complete task identity
 		err = t.taskIdentity.DeleteByTaskID(tx, req.TaskID)
