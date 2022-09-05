@@ -3,6 +3,7 @@ module github.com/quanxiang-cloud/process
 go 1.16
 
 require (
+	github.com/Jeffail/gabs v1.4.0
 	github.com/Shopify/sarama v1.35.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/gin-gonic/gin v1.7.2
