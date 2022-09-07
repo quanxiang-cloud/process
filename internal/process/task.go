@@ -2,6 +2,7 @@ package process
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	rc "github.com/go-redis/redis/v8"
 	"github.com/quanxiang-cloud/process/internal"
@@ -782,6 +783,7 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 	}
 	cNode, err := component.NodeFactory(comReq.Node.NodeType)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	// U := models.Task{
@@ -793,25 +795,38 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 	// }
 	completeStatus, err := cNode.Complete(ctx, tx, comReq)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
+	marshal, _ := json.Marshal(req)
+	logger.Logger.Debug("req node info====", string(marshal))
+	logger.Logger.Debug("completeStatus====", completeStatus)
 	if completeStatus {
 		// 如果调用方指定了nextNode来初始化，优先
 		if req.NextNodeDefKey != "" {
-			fNode, err := component.NodeFactory(free)
+			flag, err := t.checkAuditResultForNextNode(comReq.Task.ProcID, req.NextNodeDefKey, req.Comments)
 			if err != nil {
+				tx.Rollback()
 				return nil, err
 			}
-			initNodeReq := &component.InitNodeReq{
-				Task:      comReq.Task,
-				Execution: comReq.Execution,
-				Instance:  comReq.Instance,
-				NextNodes: req.NextNodeDefKey,
-				UserID:    req.UserID,
-				Params:    req.Params,
-			}
-			if err = fNode.Init(ctx, tx, initNodeReq, nil); err != nil {
-				return nil, err
+			if flag {
+				fNode, err := component.NodeFactory(free)
+				if err != nil {
+					return nil, err
+				}
+				initNodeReq := &component.InitNodeReq{
+					Task:      comReq.Task,
+					Execution: comReq.Execution,
+					Instance:  comReq.Instance,
+					NextNodes: req.NextNodeDefKey,
+					UserID:    req.UserID,
+					Params:    req.Params,
+				}
+				if err = fNode.Init(ctx, tx, initNodeReq, nil); err != nil {
+					return nil, err
+				}
+				tx.Commit()
+				return resp, nil
 			}
 			tx.Commit()
 			return resp, nil
@@ -820,29 +835,63 @@ func (t *task) CompleteTask(ctx context.Context, req *CompleteTaskReq) (resp *Co
 		case multiUser:
 			ex, err := t.executionRepo.FindByID(tx, comReq.Execution.PID)
 			if err != nil {
+				tx.Rollback()
 				return nil, err
 			}
 			comReq.Execution = ex
 		}
-		_, err = t.InitTask(ctx, tx, comReq)
+
+		flag, err := t.checkAuditResultForNextNode(comReq.Task.ProcID, comReq.Task.NextNodeDefKey, req.Comments)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
+		if flag {
+			_, err = t.InitTask(ctx, tx, comReq)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+		}
+		logger.Logger.Debug("flag====", flag)
+
 		// delete complete task identity
 		err = t.taskIdentity.DeleteByTaskID(tx, req.TaskID)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 		// temp-model task need delete
 		if comReq.Task.TaskType == internal.TempModel {
 			err = t.taskRepo.DeleteByID(tx, comReq.Task.ID)
 			if err != nil {
+				tx.Rollback()
 				return nil, err
 			}
 		}
 	}
 	tx.Commit()
 	return resp, nil
+}
+
+func (t *task) checkAuditResultForNextNode(procID, nextNodeDefKey, comments string) (bool, error) {
+	nextNode, err := t.nodeRepo.FindByDefKey(t.db, procID, nextNodeDefKey)
+	if err != nil {
+		return false, err
+	}
+	marshal1, _ := json.Marshal(nextNode)
+	logger.Logger.Debug("next node info====", string(marshal1))
+	logger.Logger.Debug("req info comments====", comments)
+	var flag = true
+	if nextNode.NodeType == "ParallelGateway" {
+		flag = true
+	} else {
+		if comments != "" && strings.Contains(comments, "REFUSE") {
+			flag = false
+		}
+	}
+	logger.Logger.Debug("flag====", flag)
+	return flag, nil
 }
 
 func (t *task) packCompleteReq(tx *gorm.DB, req *CompleteTaskReq) (*component.CompleteNodeReq, error) {
