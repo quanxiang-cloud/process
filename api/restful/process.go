@@ -415,3 +415,14 @@ func (p *Process) NodeInstanceList(c *gin.Context) {
 
 	resp.Format(p.instance.NodeInstanceList(logger.CTXTransfer(c), req)).Context(c)
 }
+
+// GetTaskIdentityByTaskID get task identities by taskID
+func (p *Process) GetTaskIdentityByTaskID(c *gin.Context) {
+	req := &process.GetTaskIdentityByTaskIDReq{}
+	if err := c.ShouldBindUri(req); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	resp.Format(p.task.GetTaskIdentityByTaskID(logger.CTXTransfer(c), req)).Context(c)
+}

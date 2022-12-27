@@ -29,4 +29,5 @@ type TaskIdentityRepo interface {
 	DeleteByID(db *gorm.DB, id string) error
 	FindUserInstanceTask(db *gorm.DB, instanceID, taskID, userID, groupID string) (*TaskIdentity, error)
 	DeleteByInstanceID(db *gorm.DB, instanceID string) error
+	FindByTaskID(db *gorm.DB, taskID string) ([]*TaskIdentity, error)
 }
