@@ -103,3 +103,14 @@ func (ti *taskIdentityRepo) DeleteByID(db *gorm.DB, id string) error {
 		Error
 	return err
 }
+
+func (ti *taskIdentityRepo) FindByTaskID(db *gorm.DB, taskID string) ([]*models.TaskIdentity, error) {
+	res := make([]*models.TaskIdentity, 0)
+	affected := db.Table(ti.TableName()).
+		Where("task_id = ?", taskID).
+		Find(&res).RowsAffected
+	if affected > 0 {
+		return res, nil
+	}
+	return nil, nil
+}

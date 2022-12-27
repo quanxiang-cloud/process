@@ -99,6 +99,7 @@ func NewRouter(c *config.Configs) (*Router, error) {
 		v1.POST("/completeNode", process.CompleteNode)
 
 		v1.POST("/nodeInstanceList", process.NodeInstanceList)
+		v1.GET("/task/identities/:taskID", process.GetTaskIdentityByTaskID)
 
 	}
 

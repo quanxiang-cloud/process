@@ -67,6 +67,7 @@ type Task interface {
 	DoDeleteTask(tx *gorm.DB, task *models.Task) error
 	QueryGroupIDByUserID(ctx context.Context, userID string) (string, error)
 	R() *rc.ClusterClient
+	GetTaskIdentityByTaskID(ctx context.Context, req *GetTaskIdentityByTaskIDReq) (*GetTaskIdentityByTaskIDResp, error)
 }
 
 type task struct {
@@ -1157,4 +1158,47 @@ type AddHistoryTaskResp struct {
 // TotalTaskResp TotalTaskResp
 type TotalTaskResp struct {
 	Total int64 `json:"total"`
+}
+
+type GetTaskIdentityByTaskIDReq struct {
+	TaskID string `json:"taskID" uri:"taskID"`
+}
+
+type GetTaskIdentityByTaskIDResp struct {
+	TaskIdentities []TaskIdentity `json:"taskIdentities"`
+}
+
+type TaskIdentity struct {
+	ID           string `json:"id"`
+	TaskID       string `json:"taskId"`
+	UserID       string `json:"userId"`
+	GroupID      string `json:"groupId"`
+	IdentityType string `json:"identityType"` // USER、GROUP
+	InstanceID   string `json:"instanceId"`
+	CreatorID    string `json:"creatorId"`
+	CreateTime   string `json:"createTime"`
+}
+
+func (t *task) GetTaskIdentityByTaskID(ctx context.Context, req *GetTaskIdentityByTaskIDReq) (*GetTaskIdentityByTaskIDResp, error) {
+	identities, err := t.taskIdentity.FindByTaskID(t.db, req.TaskID)
+	if err != nil {
+		return nil, err
+	}
+	taskIdentities := make([]TaskIdentity, 0)
+	for k := range identities {
+		taskIdentities = append(taskIdentities, TaskIdentity{
+			ID:           identities[k].ID,
+			TaskID:       identities[k].TaskID,
+			UserID:       identities[k].UserID,
+			GroupID:      identities[k].GroupID,
+			IdentityType: identities[k].IdentityType,
+			InstanceID:   identities[k].InstanceID,
+			CreatorID:    identities[k].CreatorID,
+			CreateTime:   identities[k].CreateTime,
+		})
+	}
+	return &GetTaskIdentityByTaskIDResp{
+		TaskIdentities: taskIdentities,
+	}, nil
+
 }
