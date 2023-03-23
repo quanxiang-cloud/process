@@ -68,6 +68,10 @@ func (p *ParallelGatewayNode) Init(ctx context.Context, tx *gorm.DB, req *InitNo
 					continue
 				}
 				if nl.Condition != "" {
+					if req.Execution != nil && req.Execution.ProcInstanceID != "" {
+						param["ProcInstanceID"] = req.Execution.ProcInstanceID
+					}
+
 					b, err = p.Condition.GetConditionResult(ctx, nl.Condition, param)
 					if err != nil {
 						return err
